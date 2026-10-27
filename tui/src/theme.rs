@@ -48,7 +48,7 @@ impl Palette {
     const fn terminal() -> Self {
         Self {
             bg: Color::Reset,
-            surface: Color::Reset,
+            surface: Color::DarkGray,
             text: Color::Reset,
             dim: Color::DarkGray,
             accent: Color::Cyan,
@@ -83,17 +83,19 @@ pub fn palette() -> &'static Palette {
 }
 
 /// Loads the optional `theme` file. Invalid lines are reported but do not stop startup.
-pub fn load() {
+pub fn load() -> Vec<String> {
     let Some(path) = config_dir().map(|dir| dir.join("theme")) else {
-        return;
+        let _ = PALETTE.set(Palette::dark());
+        return Vec::new();
     };
     let Ok(contents) = fs::read_to_string(path) else {
         let _ = PALETTE.set(Palette::dark());
-        return;
+        return Vec::new();
     };
 
     let mut palette = Palette::dark();
     let mut problems = Vec::new();
+    let mut saw_colour_override = false;
     for (index, raw) in contents.lines().enumerate() {
         let line = raw.trim();
         if line.is_empty() || line.starts_with('#') {
@@ -106,6 +108,9 @@ pub fn load() {
         let name = name.trim().to_ascii_uppercase();
         let value = value.trim();
         if name == "PRESET" {
+            if saw_colour_override {
+                problems.push(format!("theme line {}: preset resets colour overrides; put preset before colours", index + 1));
+            }
             palette = match value.to_ascii_lowercase().as_str() {
                 "dark" => Palette::dark(),
                 "light" => Palette::light(),
@@ -120,6 +125,7 @@ pub fn load() {
             };
             continue;
         }
+        saw_colour_override = true;
         let Some(color) = parse_color(value) else {
             problems.push(format!(
                 "theme line {}: expected a colour like `#rrggbb`",
@@ -132,14 +138,12 @@ pub fn load() {
         }
     }
     let _ = PALETTE.set(palette);
-    for problem in problems {
-        eprintln!("warning: {problem}");
-    }
+    problems
 }
 
 fn parse_color(value: &str) -> Option<Color> {
     let hex = value.strip_prefix('#')?;
-    if hex.len() != 6 {
+    if !hex.is_ascii() || hex.len() != 6 {
         return None;
     }
     let red = u8::from_str_radix(&hex[0..2], 16).ok()?;
@@ -219,6 +223,7 @@ mod tests {
         assert_eq!(parse_color("#a896ff"), Some(Color::Rgb(0xA8, 0x96, 0xFF)));
         assert_eq!(parse_color("#xyzxyz"), None);
         assert_eq!(parse_color("#12345"), None);
+        assert_eq!(parse_color("#€abc"), None);
     }
 
     #[test]

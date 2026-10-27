@@ -1,0 +1,26 @@
+{
+    "version": "0.16.0",
+    "description": "Game Boy Advance emulator running in your terminal",
+    "homepage": "https://github.com/Huseynteymurzade28/tuiba",
+    "license": "MIT",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/Huseynteymurzade28/tuiba/releases/download/v$version/tuiba-v$version-x86_64-pc-windows-msvc.zip",
+            "hash": "",
+            "extract_dir": "tuiba-v$version-x86_64-pc-windows-msvc"
+        }
+    },
+    "bin": "tuiba.exe",
+    "checkver": {
+        "github": "https://github.com/Huseynteymurzade28/tuiba"
+    },
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/Huseynteymurzade28/tuiba/releases/download/v$version/tuiba-v$version-x86_64-pc-windows-msvc.zip",
+                "hash": "",
+                "extract_dir": "tuiba-v$version-x86_64-pc-windows-msvc"
+            }
+        }
+    }
+}

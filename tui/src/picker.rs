@@ -467,8 +467,8 @@ impl Picker {
         .areas(area);
         if logo_area.width > wordmark::width() {
             let shades = [
-                theme::accent().fg(theme::ACCENT_LIGHT),
-                theme::accent().fg(theme::ACCENT_LIGHT),
+                theme::accent().fg(theme::palette().accent_light),
+                theme::accent().fg(theme::palette().accent_light),
                 theme::accent(),
                 theme::accent(),
             ];
@@ -582,10 +582,14 @@ impl Picker {
                     (
                         theme::selected_unfocused(),
                         theme::selected_unfocused(),
-                        theme::selected_unfocused().fg(theme::OK),
+                        theme::selected_unfocused().fg(theme::palette().ok),
                     )
                 } else {
-                    (theme::text(), theme::dim(), theme::text().fg(theme::OK))
+                    (
+                        theme::text(),
+                        theme::dim(),
+                        theme::text().fg(theme::palette().ok),
+                    )
                 };
                 let marker = if selected { "▸ " } else { "  " };
                 // On the accent-coloured selected row the accent highlight
@@ -593,7 +597,7 @@ impl Picker {
                 let hit_style = if selected && focused {
                     name_style.underlined()
                 } else {
-                    name_style.fg(theme::ACCENT_LIGHT).bold()
+                    name_style.fg(theme::palette().accent_light).bold()
                 };
                 let mut spans = vec![Span::styled(marker, name_style)];
                 spans.extend(highlight(&name, &needle, name_style, hit_style));
@@ -626,7 +630,9 @@ impl Picker {
             facts.push(format!("v1.{}", h.version));
         }
         facts.push(human_size(rom.size));
-        let meta_style = Style::default().fg(theme::DIM).bg(theme::SURFACE);
+        let meta_style = Style::default()
+            .fg(theme::palette().dim)
+            .bg(theme::palette().surface);
         let meta = Line::from(Span::styled(
             format!(" {}", facts.join("  ·  ")),
             meta_style,
@@ -686,15 +692,21 @@ impl Picker {
                 lines.push(row(
                     "Header",
                     if h.valid {
-                        Span::styled("ok", theme::text().fg(theme::OK))
+                        Span::styled("ok", theme::text().fg(theme::palette().ok))
                     } else {
-                        Span::styled("bad checksum (homebrew?)", theme::text().fg(theme::WARN))
+                        Span::styled(
+                            "bad checksum (homebrew?)",
+                            theme::text().fg(theme::palette().warn),
+                        )
                     },
                 ));
             }
             None => lines.push(row(
                 "Header",
-                Span::styled("missing — file too small", theme::text().fg(theme::WARN)),
+                Span::styled(
+                    "missing — file too small",
+                    theme::text().fg(theme::palette().warn),
+                ),
             )),
         }
         let chip = match save_type {
@@ -710,7 +722,7 @@ impl Picker {
             vec![
                 plain(chip.to_string()),
                 if rom.has_save {
-                    Span::styled("  ·  ● saved", theme::text().fg(theme::OK))
+                    Span::styled("  ·  ● saved", theme::text().fg(theme::palette().ok))
                 } else {
                     Span::styled("  ·  no save", theme::dim())
                 },
@@ -771,7 +783,7 @@ impl Picker {
                     format!("{count:>4}")
                 };
                 let count_style = if unreadable {
-                    style.fg(theme::WARN)
+                    style.fg(theme::palette().warn)
                 } else if selected && focused {
                     style
                 } else {
@@ -788,6 +800,8 @@ impl Picker {
         frame.render_stateful_widget(List::new(items), inner, &mut state);
     }
 
+    // This method intentionally keeps footer rendering modes together.
+    #[allow(clippy::too_many_lines)]
     fn draw_footer(&self, frame: &mut Frame, area: Rect) {
         let line = match &self.mode {
             Mode::ConfirmQuit => Line::from(vec![
@@ -798,26 +812,44 @@ impl Picker {
                 Span::styled(" Add folder ", theme::key()),
                 Span::styled(
                     format!(" {input}"),
-                    Style::default().fg(theme::TEXT).bg(theme::SURFACE),
+                    Style::default()
+                        .fg(theme::palette().text)
+                        .bg(theme::palette().surface),
                 ),
-                Span::styled("█", Style::default().fg(theme::ACCENT).bg(theme::SURFACE)),
+                Span::styled(
+                    "█",
+                    Style::default()
+                        .fg(theme::palette().accent)
+                        .bg(theme::palette().surface),
+                ),
                 Span::styled("   ⏎ confirm  esc cancel", theme::hint()),
             ]),
             Mode::Filter => Line::from(vec![
                 Span::styled(" Filter ", theme::key()),
                 Span::styled(
                     format!(" {}", self.filter),
-                    Style::default().fg(theme::TEXT).bg(theme::SURFACE),
+                    Style::default()
+                        .fg(theme::palette().text)
+                        .bg(theme::palette().surface),
                 ),
-                Span::styled("█", Style::default().fg(theme::ACCENT).bg(theme::SURFACE)),
+                Span::styled(
+                    "█",
+                    Style::default()
+                        .fg(theme::palette().accent)
+                        .bg(theme::palette().surface),
+                ),
                 Span::styled("   ⏎ keep  esc clear  ↑↓ select", theme::hint()),
             ]),
             Mode::Browse => {
                 if let Some((message, ok)) = &self.notice {
-                    let color = if *ok { theme::OK } else { theme::WARN };
+                    let color = if *ok {
+                        theme::palette().ok
+                    } else {
+                        theme::palette().warn
+                    };
                     Line::from(Span::styled(
                         format!(" {message}"),
-                        Style::default().fg(color).bg(theme::SURFACE),
+                        Style::default().fg(color).bg(theme::palette().surface),
                     ))
                 } else {
                     let mut spans = Vec::new();
@@ -874,7 +906,7 @@ impl Picker {
             }
         };
         frame.render_widget(
-            Paragraph::new(line).style(Style::default().bg(theme::SURFACE)),
+            Paragraph::new(line).style(Style::default().bg(theme::palette().surface)),
             area,
         );
         // Version, tucked into the right corner.

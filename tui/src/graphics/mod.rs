@@ -374,13 +374,55 @@ impl Drop for Graphics {
     }
 }
 
+/// Returns an ANSI SGR parameter for a foreground or background colour.
+fn colour_sgr(color: Color, foreground: bool) -> String {
+    match color {
+        Color::Reset => {
+            if foreground {
+                ";39".to_string()
+            } else {
+                ";49".to_string()
+            }
+        }
+        Color::Rgb(r, g, b) => format!(";{};2;{r};{g};{b}", if foreground { 38 } else { 48 }),
+        Color::Indexed(index) => format!(";{};5;{index}", if foreground { 38 } else { 48 }),
+        Color::Black => sgr_basic(30, foreground),
+        Color::Red => sgr_basic(31, foreground),
+        Color::Green => sgr_basic(32, foreground),
+        Color::Yellow => sgr_basic(33, foreground),
+        Color::Blue => sgr_basic(34, foreground),
+        Color::Magenta => sgr_basic(35, foreground),
+        Color::Cyan => sgr_basic(36, foreground),
+        Color::Gray => sgr_basic(37, foreground),
+        Color::DarkGray => sgr_basic(90, foreground),
+        Color::LightRed => sgr_basic(91, foreground),
+        Color::LightGreen => sgr_basic(92, foreground),
+        Color::LightYellow => sgr_basic(93, foreground),
+        Color::LightBlue => sgr_basic(94, foreground),
+        Color::LightMagenta => sgr_basic(95, foreground),
+        Color::LightCyan => sgr_basic(96, foreground),
+        Color::White => sgr_basic(97, foreground),
+    }
+}
+
+fn sgr_basic(foreground_code: u8, foreground: bool) -> String {
+    let code = if foreground {
+        foreground_code
+    } else {
+        foreground_code + 10
+    };
+    format!(";{code}")
+}
+
 /// Paints the cells under `p` with spaces in the screen's colours: what
 /// the game screen's cells hold in Ratatui's buffer.
 fn erase(out: &mut Vec<u8>, p: Placement) -> io::Result<()> {
-    let (Color::Rgb(fr, fg, fb), Color::Rgb(br, bg, bb)) = (theme::TEXT, theme::BG) else {
-        unreachable!("theme colours are RGB");
-    };
-    write!(out, "\x1b[0;38;2;{fr};{fg};{fb};48;2;{br};{bg};{bb}m")?;
+    write!(
+        out,
+        "\x1b[0{}{}m",
+        colour_sgr(theme::palette().text, true),
+        colour_sgr(theme::palette().bg, false)
+    )?;
     for row in 0..p.rows {
         write!(out, "\x1b[{};{}H", p.y + row + 1, p.x + 1)?;
         out.resize(out.len() + usize::from(p.cols), b' ');

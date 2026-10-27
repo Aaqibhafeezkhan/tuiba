@@ -256,7 +256,7 @@ impl DebuggerPanel {
             .border_type(BorderType::Rounded)
             .border_style(theme::border())
             .padding(Padding::horizontal(1))
-            .style(theme::text().bg(theme::SURFACE));
+            .style(theme::text().bg(theme::palette().surface));
         let inside = block.inner(area);
         frame.render_widget(block, area);
         let [registers, status, heading, lower, footer] = Layout::vertical([
@@ -305,10 +305,11 @@ impl DebuggerPanel {
         frame.render_widget(Paragraph::new(lines), lower);
         let footer_widget = match (&self.prompt, self.error) {
             (Some((prompt, text)), _) => prompt_line(*prompt, text, self.view),
-            (None, Some(error)) => {
-                Paragraph::new(Line::styled(error, Style::default().fg(theme::WARN)))
-                    .alignment(Alignment::Center)
-            }
+            (None, Some(error)) => Paragraph::new(Line::styled(
+                error,
+                Style::default().fg(theme::palette().warn),
+            ))
+            .alignment(Alignment::Center),
             (None, None) => footer_line(pad, self.view),
         };
         frame.render_widget(footer_widget, footer);
@@ -377,7 +378,7 @@ fn memory_lines(gba: &Gba, start: u32, rows: usize, before: Option<&[u8]>) -> Ve
                     .and_then(|b| b.get(index))
                     .is_some_and(|&old| old != byte);
                 let style = if changed {
-                    Style::default().fg(theme::WARN).bold()
+                    Style::default().fg(theme::palette().warn).bold()
                 } else {
                     theme::text()
                 };
@@ -523,7 +524,10 @@ fn status_lines(gba: &Gba) -> Vec<Line<'static>> {
         Span::styled(format!(" {}", gba.cpu.cycles), theme::text()),
     ];
     if gba.cpu.halted {
-        timing.push(Span::styled("  halted", Style::default().fg(theme::WARN)));
+        timing.push(Span::styled(
+            "  halted",
+            Style::default().fg(theme::palette().warn),
+        ));
     }
     vec![Line::from(psr), Line::from(timing)]
 }
@@ -594,7 +598,7 @@ fn code_lines(gba: &Gba, start: u32, rows: usize, breakpoints: &Breakpoints) -> 
             " "
         };
         lines.push(Line::from(vec![
-            Span::styled(stop, Style::default().fg(theme::WARN)),
+            Span::styled(stop, Style::default().fg(theme::palette().warn)),
             Span::styled(if current { "▶ " } else { "  " }, theme::accent()),
             Span::styled(format!("{address:08x}  "), theme::hint()),
             Span::styled(format!("{encoding:<10}"), theme::hint()),
@@ -799,7 +803,7 @@ mod tests {
         );
         let marked: Vec<_> = lines[0].spans[1..9]
             .iter()
-            .map(|s| s.style.fg == Some(theme::WARN))
+            .map(|s| s.style.fg == Some(theme::palette().warn))
             .collect();
         assert_eq!(
             marked,

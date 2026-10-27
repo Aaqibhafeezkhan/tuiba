@@ -38,3 +38,12 @@ default = ["gamepad"]
 # Game controllers through gilrs (evdev/libudev on Linux, Windows Gaming
 # Input / XInput, IOKit on macOS). Without it only the keyboard plays.
 gamepad = ["dep:gilrs"]
+
+[package.metadata.binstall]
+pkg-url = "https://github.com/Huseynteymurzade28/tuiba/releases/download/v{ version }/tuiba-v{ version }-{ target }.tar.gz"
+bin-dir = "tuiba-v{ version }-{ target }/tuiba{ binary-ext }"
+pkg-fmt = "tgz"
+
+[package.metadata.binstall.overrides.x86_64-pc-windows-msvc]
+pkg-url = "https://github.com/Huseynteymurzade28/tuiba/releases/download/v{ version }/tuiba-v{ version }-{ target }.zip"
+pkg-fmt = "zip"

@@ -1132,7 +1132,7 @@ fn run() -> Result<(), AppError> {
     }
 
     // A ROM plays directly; a folder (or nothing) opens the library.
-    theme::load();
+    let theme_problems = theme::load();
     let mut library = Library::load();
     let direct_rom = match &args.rom {
         Some(path) if path.is_dir() => {
@@ -1148,7 +1148,7 @@ fn run() -> Result<(), AppError> {
     let (bindings, key_problems) = Bindings::load();
     if direct_rom.is_some() {
         // No library footer to show these in; they stay in the scrollback.
-        for problem in &key_problems {
+        for problem in theme_problems.iter().chain(&key_problems) {
             eprintln!("warning: {problem}");
         }
     }
@@ -1175,7 +1175,7 @@ fn run() -> Result<(), AppError> {
         return play(terminal, &rom, &session, &mut gamepads).map(|_| ());
     }
     let mut picker = Picker::new(library);
-    if let Some(problem) = key_problems.first() {
+    if let Some(problem) = theme_problems.first().or_else(|| key_problems.first()) {
         picker.notify_error(problem.clone());
     }
     library_loop(terminal, picker, &session, &mut gamepads)

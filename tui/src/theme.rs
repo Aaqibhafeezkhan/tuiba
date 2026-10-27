@@ -125,7 +125,6 @@ pub fn load() -> Vec<String> {
             };
             continue;
         }
-        saw_colour_override = true;
         let Some(color) = parse_color(value) else {
             problems.push(format!(
                 "theme line {}: expected a colour like `#rrggbb`",
@@ -133,6 +132,7 @@ pub fn load() -> Vec<String> {
             ));
             continue;
         };
+        saw_colour_override = true;
         if !palette.set(&name, color) {
             problems.push(format!("theme line {}: unknown colour `{name}`", index + 1));
         }

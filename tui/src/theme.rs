@@ -109,7 +109,10 @@ pub fn load() -> Vec<String> {
         let value = value.trim();
         if name == "PRESET" {
             if saw_colour_override {
-                problems.push(format!("theme line {}: preset resets colour overrides; put preset before colours", index + 1));
+                problems.push(format!(
+                    "theme line {}: preset resets colour overrides; put preset before colours",
+                    index + 1
+                ));
             }
             palette = match value.to_ascii_lowercase().as_str() {
                 "dark" => Palette::dark(),

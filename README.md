@@ -271,7 +271,7 @@ report.
 ### Colours
 
 The interface palette can be customised with a `theme` file in the configuration
-directory (`~/.config/tuiba/theme`, or `%APPDATA%\\tuiba\\theme` on Windows).
+directory (`~/.config/tuiba/theme`, or `%APPDATA%\tuiba\theme` on Windows).
 Each line uses `name = value`; colours are six-digit RGB values:
 
 ```ini

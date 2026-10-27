@@ -7,6 +7,8 @@
     let
       systems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
+      # Read from the workspace so a release bump needs no edit here.
+      version = (builtins.fromTOML (builtins.readFile ./Cargo.toml)).workspace.package.version;
     in
     {
       packages = forAllSystems (system:
@@ -17,7 +19,7 @@
         {
           default = pkgs.rustPlatform.buildRustPackage {
             pname = "tuiba";
-            version = "0.16.0";
+            inherit version;
             src = self;
             cargoLock.lockFile = ./Cargo.lock;
             cargoBuildFlags = [ "-p" "tuiba" ];

@@ -902,14 +902,16 @@ impl App {
         let mut spans = vec![
             Span::styled(
                 format!(" {}  ", self.title),
-                theme::text().bg(theme::SURFACE),
+                theme::text().bg(theme::palette().surface),
             ),
             Span::styled(
                 format!(
                     "{:.0} fps{mode}  {renderer}{size_hint}{keys}{pad}{sound}{notice}{swi_hint}{held}{save}",
                     self.fps
                 ),
-                Style::default().fg(theme::DIM).bg(theme::SURFACE),
+                Style::default()
+                    .fg(theme::palette().dim)
+                    .bg(theme::palette().surface),
             ),
             Span::raw("  "),
         ];
@@ -989,7 +991,11 @@ impl App {
         };
         let status = self.status_line(&size_hint);
         frame.render_widget(
-            Paragraph::new(status).style(Style::default().fg(theme::DIM).bg(theme::SURFACE)),
+            Paragraph::new(status).style(
+                Style::default()
+                    .fg(theme::palette().dim)
+                    .bg(theme::palette().surface),
+            ),
             status_area,
         );
         if self.help {
@@ -1087,7 +1093,7 @@ impl App {
                     .border_type(BorderType::Rounded)
                     .border_style(theme::border())
                     .padding(Padding::horizontal(1))
-                    .style(theme::text().bg(theme::SURFACE)),
+                    .style(theme::text().bg(theme::palette().surface)),
             ),
             popup,
         );
@@ -1126,6 +1132,7 @@ fn run() -> Result<(), AppError> {
     }
 
     // A ROM plays directly; a folder (or nothing) opens the library.
+    theme::load();
     let mut library = Library::load();
     let direct_rom = match &args.rom {
         Some(path) if path.is_dir() => {

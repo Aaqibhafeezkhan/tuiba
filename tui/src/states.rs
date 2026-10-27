@@ -201,7 +201,7 @@ impl StatesPanel {
             .border_type(BorderType::Rounded)
             .border_style(theme::border())
             .padding(Padding::horizontal(1))
-            .style(theme::text().bg(theme::SURFACE));
+            .style(theme::text().bg(theme::palette().surface));
         let inside = block.inner(popup);
         frame.render_widget(block, popup);
 
@@ -316,7 +316,7 @@ impl StatesPanel {
             frame.render_widget(GbaScreen::new(snapshot.framebuffer()), inside);
         } else {
             let (text, style) = match &slot.problem {
-                Some(problem) => (problem.as_str(), Style::default().fg(theme::WARN)),
+                Some(problem) => (problem.as_str(), Style::default().fg(theme::palette().warn)),
                 None => ("empty", theme::dim()),
             };
             let [line] = Layout::vertical([Constraint::Length(1)])

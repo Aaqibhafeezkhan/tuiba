@@ -376,7 +376,7 @@ impl CheatsPanel {
             .border_type(BorderType::Rounded)
             .border_style(theme::border())
             .padding(Padding::horizontal(1))
-            .style(theme::text().bg(theme::SURFACE));
+            .style(theme::text().bg(theme::palette().surface));
         let inside = block.inner(popup);
         frame.render_widget(block, popup);
         let [list, _, detail, footer] = Layout::vertical([
@@ -396,7 +396,7 @@ impl CheatsPanel {
             let lines = vec![
                 Line::styled(
                     "No cheats for this game yet.",
-                    theme::text().bg(theme::SURFACE),
+                    theme::text().bg(theme::palette().surface),
                 ),
                 Line::default(),
                 Line::from(vec![
@@ -470,18 +470,22 @@ fn row(entry: &Entry, focused: bool, width: usize) -> Line<'static> {
         entry.name.clone()
     };
     let gap = room.saturating_sub(name.chars().count()) + 1;
-    let base = Style::default().bg(theme::SURFACE);
+    let base = Style::default().bg(theme::palette().surface);
     let style = match (&entry.cheat, entry.enabled, focused) {
         (_, _, true) => theme::selected(),
-        (Err(_), _, _) => base.fg(theme::WARN),
-        (Ok(_), true, _) => base.fg(theme::OK),
-        (Ok(_), false, _) => base.fg(theme::DIM),
+        (Err(_), _, _) => base.fg(theme::palette().warn),
+        (Ok(_), true, _) => base.fg(theme::palette().ok),
+        (Ok(_), false, _) => base.fg(theme::palette().dim),
     };
     Line::from(vec![
         Span::styled(format!("{head}{name}{}", " ".repeat(gap)), style),
         Span::styled(
             tag.to_owned(),
-            if focused { style } else { base.fg(theme::DIM) },
+            if focused {
+                style
+            } else {
+                base.fg(theme::palette().dim)
+            },
         ),
     ])
 }
@@ -498,11 +502,11 @@ fn short_format(cheat: &Cheat) -> &'static str {
 
 /// What the selected cheat is, or why it does not work.
 fn details(entry: &Entry) -> Vec<Line<'static>> {
-    let base = Style::default().bg(theme::SURFACE);
+    let base = Style::default().bg(theme::palette().surface);
     match &entry.cheat {
         Err(err) => vec![Line::styled(
             format!("Not usable: {err}"),
-            base.fg(theme::WARN),
+            base.fg(theme::palette().warn),
         )],
         Ok(cheat) => {
             let plain = match cheat.format() {
@@ -516,7 +520,7 @@ fn details(entry: &Entry) -> Vec<Line<'static>> {
             if !cheat.skipped().is_empty() {
                 lines.push(Line::styled(
                     format!("Skips {}: not possible here.", cheat.skipped().join(", ")),
-                    base.fg(theme::WARN),
+                    base.fg(theme::palette().warn),
                 ));
             } else if cheat.is_empty() {
                 lines.push(Line::styled(

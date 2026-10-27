@@ -268,6 +268,29 @@ If tuiba ever crashes, the message and a backtrace are appended to
 `crash.log` in the same state directory; please attach that to a bug
 report.
 
+### Colours
+
+The interface palette can be customised with a `theme` file in the configuration
+directory (`~/.config/tuiba/theme`, or `%APPDATA%\\tuiba\\theme` on Windows).
+Each line uses `name = value`; colours are six-digit RGB values:
+
+```ini
+# Choose dark (default), light, or terminal
+preset = dark
+BG = #12101c
+SURFACE = #1e1a2e
+TEXT = #e8e4f4
+DIM = #6f6888
+ACCENT = #a896ff
+ACCENT_LIGHT = #c4b6ff
+OK = #8ce0a0
+WARN = #f0b86c
+```
+
+Only the colours you specify are overridden. Built-in `light` and `terminal`
+presets are also available. Invalid lines are reported as warnings and do not
+prevent startup.
+
 ### Keys
 
 | Library                          | In a game                                    |
